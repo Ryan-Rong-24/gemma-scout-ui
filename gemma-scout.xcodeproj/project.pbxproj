@@ -1,0 +1,555 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		AAB14E962E3E895900FC85BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AAB14E802E3E895800FC85BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AAB14E872E3E895800FC85BB;
+			remoteInfo = "gemma-scout";
+		};
+		AAB14EA02E3E895900FC85BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AAB14E802E3E895800FC85BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AAB14E872E3E895800FC85BB;
+			remoteInfo = "gemma-scout";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AAB14E882E3E895800FC85BB /* gemma-scout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "gemma-scout.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAB14E952E3E895900FC85BB /* gemma-scoutTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "gemma-scoutTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAB14E9F2E3E895900FC85BB /* gemma-scoutUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "gemma-scoutUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AAB14E8A2E3E895800FC85BB /* gemma-scout */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "gemma-scout";
+			sourceTree = "<group>";
+		};
+		AAB14E982E3E895900FC85BB /* gemma-scoutTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "gemma-scoutTests";
+			sourceTree = "<group>";
+		};
+		AAB14EA22E3E895900FC85BB /* gemma-scoutUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "gemma-scoutUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AAB14E852E3E895800FC85BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E922E3E895900FC85BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E9C2E3E895900FC85BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AAB14E7F2E3E895800FC85BB = {
+			isa = PBXGroup;
+			children = (
+				AAB14E8A2E3E895800FC85BB /* gemma-scout */,
+				AAB14E982E3E895900FC85BB /* gemma-scoutTests */,
+				AAB14EA22E3E895900FC85BB /* gemma-scoutUITests */,
+				AAB14E892E3E895800FC85BB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AAB14E892E3E895800FC85BB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AAB14E882E3E895800FC85BB /* gemma-scout.app */,
+				AAB14E952E3E895900FC85BB /* gemma-scoutTests.xctest */,
+				AAB14E9F2E3E895900FC85BB /* gemma-scoutUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AAB14E872E3E895800FC85BB /* gemma-scout */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AAB14EA92E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scout" */;
+			buildPhases = (
+				AAB14E842E3E895800FC85BB /* Sources */,
+				AAB14E852E3E895800FC85BB /* Frameworks */,
+				AAB14E862E3E895800FC85BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AAB14E8A2E3E895800FC85BB /* gemma-scout */,
+			);
+			name = "gemma-scout";
+			packageProductDependencies = (
+			);
+			productName = "gemma-scout";
+			productReference = AAB14E882E3E895800FC85BB /* gemma-scout.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AAB14E942E3E895900FC85BB /* gemma-scoutTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AAB14EAC2E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scoutTests" */;
+			buildPhases = (
+				AAB14E912E3E895900FC85BB /* Sources */,
+				AAB14E922E3E895900FC85BB /* Frameworks */,
+				AAB14E932E3E895900FC85BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AAB14E972E3E895900FC85BB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AAB14E982E3E895900FC85BB /* gemma-scoutTests */,
+			);
+			name = "gemma-scoutTests";
+			packageProductDependencies = (
+			);
+			productName = "gemma-scoutTests";
+			productReference = AAB14E952E3E895900FC85BB /* gemma-scoutTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AAB14E9E2E3E895900FC85BB /* gemma-scoutUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AAB14EAF2E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scoutUITests" */;
+			buildPhases = (
+				AAB14E9B2E3E895900FC85BB /* Sources */,
+				AAB14E9C2E3E895900FC85BB /* Frameworks */,
+				AAB14E9D2E3E895900FC85BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AAB14EA12E3E895900FC85BB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AAB14EA22E3E895900FC85BB /* gemma-scoutUITests */,
+			);
+			name = "gemma-scoutUITests";
+			packageProductDependencies = (
+			);
+			productName = "gemma-scoutUITests";
+			productReference = AAB14E9F2E3E895900FC85BB /* gemma-scoutUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAB14E802E3E895800FC85BB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					AAB14E872E3E895800FC85BB = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					AAB14E942E3E895900FC85BB = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AAB14E872E3E895800FC85BB;
+					};
+					AAB14E9E2E3E895900FC85BB = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AAB14E872E3E895800FC85BB;
+					};
+				};
+			};
+			buildConfigurationList = AAB14E832E3E895800FC85BB /* Build configuration list for PBXProject "gemma-scout" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AAB14E7F2E3E895800FC85BB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AAB14E892E3E895800FC85BB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AAB14E872E3E895800FC85BB /* gemma-scout */,
+				AAB14E942E3E895900FC85BB /* gemma-scoutTests */,
+				AAB14E9E2E3E895900FC85BB /* gemma-scoutUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AAB14E862E3E895800FC85BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E932E3E895900FC85BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E9D2E3E895900FC85BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AAB14E842E3E895800FC85BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E912E3E895900FC85BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAB14E9B2E3E895900FC85BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AAB14E972E3E895900FC85BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AAB14E872E3E895800FC85BB /* gemma-scout */;
+			targetProxy = AAB14E962E3E895900FC85BB /* PBXContainerItemProxy */;
+		};
+		AAB14EA12E3E895900FC85BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AAB14E872E3E895800FC85BB /* gemma-scout */;
+			targetProxy = AAB14EA02E3E895900FC85BB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AAB14EA72E3E895900FC85BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AAB14EA82E3E895900FC85BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AAB14EAA2E3E895900FC85BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scout";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AAB14EAB2E3E895900FC85BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scout";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AAB14EAD2E3E895900FC85BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scoutTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gemma-scout.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gemma-scout";
+			};
+			name = Debug;
+		};
+		AAB14EAE2E3E895900FC85BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scoutTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gemma-scout.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gemma-scout";
+			};
+			name = Release;
+		};
+		AAB14EB02E3E895900FC85BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scoutUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "gemma-scout";
+			};
+			name = Debug;
+		};
+		AAB14EB12E3E895900FC85BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ryanrong.gemma-scoutUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "gemma-scout";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AAB14E832E3E895800FC85BB /* Build configuration list for PBXProject "gemma-scout" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAB14EA72E3E895900FC85BB /* Debug */,
+				AAB14EA82E3E895900FC85BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAB14EA92E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scout" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAB14EAA2E3E895900FC85BB /* Debug */,
+				AAB14EAB2E3E895900FC85BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAB14EAC2E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scoutTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAB14EAD2E3E895900FC85BB /* Debug */,
+				AAB14EAE2E3E895900FC85BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAB14EAF2E3E895900FC85BB /* Build configuration list for PBXNativeTarget "gemma-scoutUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAB14EB02E3E895900FC85BB /* Debug */,
+				AAB14EB12E3E895900FC85BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AAB14E802E3E895800FC85BB /* Project object */;
+}
