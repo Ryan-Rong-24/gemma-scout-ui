@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AAB14EB42E3E89A500FC85BB /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; };
+		AAB14EB52E3E89A500FC85BB /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		AAB14E962E3E895900FC85BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -23,10 +28,25 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AAB14EB62E3E89A500FC85BB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AAB14EB52E3E89A500FC85BB /* llama.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		AAB14E882E3E895800FC85BB /* gemma-scout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "gemma-scout.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAB14E952E3E895900FC85BB /* gemma-scoutTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "gemma-scoutTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAB14E9F2E3E895900FC85BB /* gemma-scoutUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "gemma-scoutUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAB14EB32E3E89A500FC85BB /* llama.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = llama.xcframework; path = "../../Documents/llama.cpp/build-apple/llama.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAB14EB42E3E89A500FC85BB /* llama.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +99,7 @@
 				AAB14E8A2E3E895800FC85BB /* gemma-scout */,
 				AAB14E982E3E895900FC85BB /* gemma-scoutTests */,
 				AAB14EA22E3E895900FC85BB /* gemma-scoutUITests */,
+				AAB14EB22E3E89A500FC85BB /* Frameworks */,
 				AAB14E892E3E895800FC85BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -92,6 +114,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		AAB14EB22E3E89A500FC85BB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AAB14EB32E3E89A500FC85BB /* llama.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -102,6 +132,7 @@
 				AAB14E842E3E895800FC85BB /* Sources */,
 				AAB14E852E3E895800FC85BB /* Frameworks */,
 				AAB14E862E3E895800FC85BB /* Resources */,
+				AAB14EB62E3E89A500FC85BB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -395,6 +426,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N49J97JLFU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -422,6 +454,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N49J97JLFU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
