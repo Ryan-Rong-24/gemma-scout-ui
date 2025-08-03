@@ -1,16 +1,11 @@
 import SwiftUI
 
-struct Message: Identifiable {
-    let id = UUID()
-    let text: String
-    let isUser: Bool
-    let timestamp: Date
-}
-
 struct WildGuideChatView: View {
     @StateObject private var llamaState = LlamaState()
+    @StateObject private var historyManager = ChatHistoryManager()
     @State private var inputText = ""
-    @State private var messages: [Message] = []
+    @State private var showingInitialPrompts = true
+    @State private var showingNewChatAlert = false
     
     let quickPrompts = [
         "How to build a fire?",
@@ -20,89 +15,116 @@ struct WildGuideChatView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with wilderness theme
-            headerView
-            
-            // Messages area
-            messagesView
-            
-            // Input area
-            inputView
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header with wilderness theme
+                headerView
+                
+                // Messages area
+                messagesView
+                
+                // Input area
+                inputView
+            }
         }
-        .onAppear {
-            initializeChat()
-        }
+        .navigationBarHidden(true)
     }
     
     private var headerView: some View {
-        ZStack {
-            // Background gradient simulating wilderness image
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.green.opacity(0.8),
-                    Color.brown.opacity(0.6)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .frame(height: 120)
+        HStack {
+            Circle()
+                .fill(LinearGradient(
+                    gradient: Gradient(colors: [Color.green, Color.blue]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 40, height: 40)
+                .overlay(
+                    Image(systemName: "compass")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                )
             
-            VStack {
-                Spacer()
-                HStack {
-                    // App icon placeholder
-                    Circle()
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [Color.green, Color.blue]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-                        .frame(width: 48, height: 48)
-                        .overlay(
-                            Image(systemName: "compass")
-                                .foregroundColor(.white)
-                                .font(.title2)
-                        )
-                    
-                    VStack(alignment: .leading) {
-                        Text("WildGuide AI")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        Text("Your survival companion")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
+            VStack(alignment: .leading) {
+                Text("WildGuide AI")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                Text("Your survival companion")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.9))
             }
+            
+            Spacer()
+            
+            // New Chat Button
+            Button(action: {
+                if !llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showingNewChatAlert = true
+                } else {
+                    startNewChat()
+                }
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+        }
+        .padding()
+        .background(LinearGradient(
+            colors: [.green, .teal],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ))
+        .alert("Start New Chat", isPresented: $showingNewChatAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Start New Chat") {
+                saveCurrentChatAndStartNew()
+            }
+        } message: {
+            Text("This will save your current conversation and start a new chat.")
         }
     }
     
     private var messagesView: some View {
         ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(messages) { message in
-                        MessageBubble(message: message)
+            ScrollView(.vertical, showsIndicators: true) {
+                LazyVStack(spacing: 16) {
+                    // Add some top padding
+                    Color.clear.frame(height: 8)
+                    
+                    // Display the actual chat messages from llamaState
+                    if !llamaState.messages.isEmpty {
+                        Text(.init(llamaState.messages))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .textSelection(.enabled)
+                            .font(.body)
                     }
                     
-                    // Quick prompts (show when only initial message)
-                    if messages.count == 1 {
+                    // Quick prompts (show when no messages yet)
+                    if llamaState.messages.isEmpty {
                         quickPromptsView
                     }
                     
+                    // Bottom spacer for scrolling
                     Color.clear
-                        .frame(height: 1)
+                        .frame(height: 20)
                         .id("bottom")
                 }
-                .padding()
+                .frame(maxWidth: .infinity)
             }
-            .onChange(of: messages.count) {
-                withAnimation(.easeInOut(duration: 0.5)) {
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
+            .onChange(of: llamaState.messages) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                }
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
@@ -141,112 +163,114 @@ struct WildGuideChatView: View {
         VStack(spacing: 0) {
             Divider()
             
-            HStack(spacing: 12) {
-                TextField("Ask about survival techniques...", text: $inputText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .onSubmit {
-                        sendMessage()
+            HStack(alignment: .bottom, spacing: 12) {
+                // Text input
+                ZStack(alignment: .leading) {
+                    if inputText.isEmpty {
+                        Text("Ask about survival techniques...")
+                            .foregroundColor(Color(.placeholderText))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 12)
                     }
-                
-                Button(action: sendMessage) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(inputText.isEmpty ? .gray : .blue)
+                    
+                    TextEditor(text: $inputText)
+                        .padding(8)
+                        .frame(minHeight: 40, maxHeight: 120)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
                 }
-                .disabled(inputText.isEmpty)
+                
+                // Buttons
+                VStack(spacing: 8) {
+                    // Send button
+                    Button(action: sendMessage) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(inputText.isEmpty ? .gray : .blue)
+                    }
+                    .disabled(inputText.isEmpty)
+                    
+                    // Clear chat button
+                    Button(action: clearMessages) {
+                        Image(systemName: "trash.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.red)
+                    }
+                    .disabled(llamaState.messages.isEmpty)
+                }
             }
             .padding()
         }
         .background(Color(.systemBackground))
     }
     
-    private func initializeChat() {
-        messages.append(Message(
-            text: "Hello! I'm your AI wilderness survival guide. I can help you with camping tips, wildlife safety, emergency procedures, and outdoor navigation. What would you like to know?",
-            isUser: false,
-            timestamp: Date()
-        ))
-    }
-    
     private func sendMessage() {
         guard !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         
-        let userMessage = Message(
-            text: inputText,
-            isUser: true,
-            timestamp: Date()
-        )
+        // Add user input to llamaState.messages (like the original implementation)
+        llamaState.messages += "\n\n"
+        llamaState.messages += "*\(inputText)*"
+        llamaState.messages += "\n\n"
         
-        messages.append(userMessage)
         let userInput = inputText
         inputText = ""
+        showingInitialPrompts = false
         
         // Load model and get AI response
         do {
             try llamaState.loadModel()
         } catch {
-            let errorMessage = Message(
-                text: "Error loading model: \(error.localizedDescription)",
-                isUser: false,
-                timestamp: Date()
-            )
-            messages.append(errorMessage)
+            llamaState.messages += "Error loading model!\n"
             return
         }
         
         Task {
             await llamaState.complete(text: userInput)
-            
-            await MainActor.run {
-                if !llamaState.messages.isEmpty {
-                    let aiResponse = Message(
-                        text: llamaState.messages,
-                        isUser: false,
-                        timestamp: Date()
-                    )
-                    messages.append(aiResponse)
-                    llamaState.messages = "" // Clear for next use
-                }
-            }
-        }
-    }
-}
-
-struct MessageBubble: View {
-    let message: Message
-    
-    var body: some View {
-        HStack {
-            if message.isUser {
-                Spacer()
-                messageBubble
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-            } else {
-                messageBubble
-                    .background(Color(.systemGray6))
-                    .foregroundColor(.primary)
-                Spacer()
-            }
         }
     }
     
-    private var messageBubble: some View {
-        VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
-            Text(message.text)
-                .font(.body)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-            
-            Text(message.timestamp, style: .time)
-                .font(.caption2)
-                .opacity(0.7)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
+    private func clearMessages() {
+        Task {
+            await llamaState.clear()
+            showingInitialPrompts = true
         }
-        .background(Color.clear)
-        .cornerRadius(16)
-        .frame(maxWidth: UIScreen.main.bounds.width * 0.8, alignment: message.isUser ? .trailing : .leading)
+    }
+    
+    private func saveCurrentChatAndStartNew() {
+        // Save current chat if it has content
+        if !llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let title = generateChatTitle(from: llamaState.messages)
+            historyManager.saveChatSession(title: title, content: llamaState.messages)
+        }
+        
+        // Start new chat
+        startNewChat()
+    }
+    
+    private func startNewChat() {
+        Task {
+            await llamaState.clear()
+            showingInitialPrompts = true
+            historyManager.startNewChat()
+        }
+    }
+    
+    private func generateChatTitle(from content: String) -> String {
+        let lines = content.split(separator: "\n").filter { !$0.isEmpty }
+        if let firstUserMessage = lines.first(where: { $0.hasPrefix("*") && $0.hasSuffix("*") }) {
+            let cleaned = String(firstUserMessage.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
+            return cleaned.count > 30 ? String(cleaned.prefix(27)) + "..." : cleaned
+        }
+        return "Wilderness Chat"
+    }
+    
+    func loadChat(_ session: ChatSession) {
+        Task {
+            await llamaState.clear()
+            llamaState.messages = session.content
+            showingInitialPrompts = false
+            historyManager.loadChat(session)
+        }
     }
 }
 

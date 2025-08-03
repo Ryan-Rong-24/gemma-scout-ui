@@ -2,10 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    @State private var chatView = WildGuideChatView()
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            WildGuideChatView()
+            chatView
                 .tabItem {
                     Image(systemName: "message.circle")
                     Text("Chat")
@@ -19,10 +20,10 @@ struct ContentView: View {
                 }
                 .tag(1)
             
-            BookmarksView()
+            HistoryView()
                 .tabItem {
-                    Image(systemName: "bookmark")
-                    Text("Saved")
+                    Image(systemName: "clock.arrow.circlepath")
+                    Text("History")
                 }
                 .tag(2)
             
@@ -34,6 +35,12 @@ struct ContentView: View {
                 .tag(3)
         }
         .accentColor(.primary)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoadChatSession"))) { notification in
+            if let session = notification.object as? ChatSession {
+                chatView.loadChat(session)
+                selectedTab = 0 // Switch to chat tab
+            }
+        }
     }
 }
 
