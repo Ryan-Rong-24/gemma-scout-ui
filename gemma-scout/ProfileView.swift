@@ -15,11 +15,15 @@ struct MenuItem {
 }
 
 struct ProfileView: View {
-    let stats = [
-        ProfileStat(label: "Guides Read", value: "23", color: .blue),
-        ProfileStat(label: "Chats", value: "47", color: .green),
-        ProfileStat(label: "Bookmarks", value: "12", color: .orange)
-    ]
+    @ObservedObject private var historyManager = ChatHistoryManager.shared
+    
+    private var stats: [ProfileStat] {
+        [
+            ProfileStat(label: "Guides Read", value: "0", color: .blue), // Placeholder for now
+            ProfileStat(label: "Chats", value: "\(historyManager.chatSessions.count)", color: .green),
+            ProfileStat(label: "History", value: "\(historyManager.chatSessions.count)", color: .orange)
+        ]
+    }
     
     let menuItems = [
         MenuItem(
@@ -75,25 +79,23 @@ struct ProfileView: View {
     private var headerView: some View {
         VStack(spacing: 16) {
             HStack(spacing: 16) {
-                Circle()
-                    .fill(LinearGradient(
-                        colors: [.green, .blue],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                // Profile picture
+                Image("headshot")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
                     .frame(width: 64, height: 64)
+                    .clipShape(Circle())
                     .overlay(
-                        Image(systemName: "person")
-                            .font(.title)
-                            .foregroundColor(.white)
+                        Circle()
+                            .stroke(Color(.systemGray4), lineWidth: 2)
                     )
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Wilderness Explorer")
+                    Text("Ryan Rong")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
-                    Text("Survival enthusiast")
+                    Text("AI Explorer & Developer")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -173,6 +175,7 @@ struct ProfileView: View {
             VStack(spacing: 12) {
                 InfoRow(label: "App Version", value: "1.0.0")
                 InfoRow(label: "AI Model", value: "Gemma 3 4B")
+                InfoRow(label: "Total Conversations", value: "\(historyManager.chatSessions.count)")
                 InfoRow(label: "Storage Used", value: "2.8 GB")
             }
             .padding()
@@ -183,7 +186,7 @@ struct ProfileView: View {
     
     private var footerSection: some View {
         VStack(spacing: 8) {
-            Text("WildGuide AI • Built for wilderness survival")
+            Text("Gemma Scout • Built for wilderness survival")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

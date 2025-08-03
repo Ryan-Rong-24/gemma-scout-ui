@@ -45,11 +45,7 @@ class ChatHistoryManager: ObservableObject {
     }
     
     func saveChatSession(title: String, content: String) {
-        print("DEBUG: saveChatSession called with title: '\(title)'")
-        print("DEBUG: Content length: \(content.count)")
-        
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { 
-            print("DEBUG: Content is empty, not saving")
             return 
         }
         
@@ -61,7 +57,6 @@ class ChatHistoryManager: ObservableObject {
         )
         
         chatSessions.insert(session, at: 0) // Add to beginning for newest first
-        print("DEBUG: Added session, total count: \(chatSessions.count)")
         saveChatHistory()
     }
     
