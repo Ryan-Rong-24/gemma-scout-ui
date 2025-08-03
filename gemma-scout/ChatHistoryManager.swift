@@ -1,18 +1,99 @@
 import Foundation
 
+struct ChatMessage: Codable, Identifiable, Equatable {
+    let id: UUID
+    let content: String
+    let isUser: Bool
+    let timestamp: Date
+    let imageData: [Data]? // Store image data as Data array
+    
+    init(content: String, isUser: Bool, timestamp: Date, imageData: [Data]? = nil) {
+        self.id = UUID()
+        self.content = content
+        self.isUser = isUser
+        self.timestamp = timestamp
+        self.imageData = imageData
+    }
+    
+    static func == (lhs: ChatMessage, rhs: ChatMessage) -> Bool {
+        return lhs.id == rhs.id && lhs.content == rhs.content && lhs.isUser == rhs.isUser
+    }
+}
+
 struct ChatSession: Codable, Identifiable {
     let id: UUID
     let title: String
-    let content: String
+    let messages: [ChatMessage]
     let createdDate: Date
     let lastModified: Date
     
+    // Legacy content property for backward compatibility
+    var content: String {
+        return messages.map { message in
+            if message.isUser {
+                return "*\(message.content)*"
+            } else {
+                return message.content
+            }
+        }.joined(separator: "\n\n")
+    }
+    
+    init(title: String, messages: [ChatMessage], createdDate: Date, lastModified: Date) {
+        self.id = UUID()
+        self.title = title
+        self.messages = messages
+        self.createdDate = createdDate
+        self.lastModified = lastModified
+    }
+    
+    // Legacy initializer for backward compatibility
     init(title: String, content: String, createdDate: Date, lastModified: Date) {
         self.id = UUID()
         self.title = title
-        self.content = content
         self.createdDate = createdDate
         self.lastModified = lastModified
+        
+        // Parse legacy content into messages
+        var parsedMessages: [ChatMessage] = []
+        let lines = content.split(separator: "\n").map(String.init)
+        var currentMessage = ""
+        var isUserMessage = false
+        
+        for line in lines {
+            if line.hasPrefix("*") && line.hasSuffix("*") {
+                // Save previous message if exists
+                if !currentMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    parsedMessages.append(ChatMessage(
+                        content: currentMessage.trimmingCharacters(in: .whitespacesAndNewlines),
+                        isUser: isUserMessage,
+                        timestamp: createdDate
+                    ))
+                }
+                // Start new user message
+                let userContent = String(line.dropFirst().dropLast())
+                parsedMessages.append(ChatMessage(
+                    content: userContent,
+                    isUser: true,
+                    timestamp: createdDate
+                ))
+                currentMessage = ""
+                isUserMessage = false
+            } else if !line.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                currentMessage += line + "\n"
+                isUserMessage = false
+            }
+        }
+        
+        // Save final message if exists
+        if !currentMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            parsedMessages.append(ChatMessage(
+                content: currentMessage.trimmingCharacters(in: .whitespacesAndNewlines),
+                isUser: isUserMessage,
+                timestamp: createdDate
+            ))
+        }
+        
+        self.messages = parsedMessages
     }
     
     var preview: String {
@@ -36,6 +117,7 @@ class ChatHistoryManager: ObservableObject {
     
     @Published var chatSessions: [ChatSession] = []
     @Published var currentChatId: UUID?
+    @Published var currentMessages: [ChatMessage] = []
     
     private let userDefaults = UserDefaults.standard
     private let chatHistoryKey = "ChatHistoryKey"
@@ -58,6 +140,28 @@ class ChatHistoryManager: ObservableObject {
         
         chatSessions.insert(session, at: 0) // Add to beginning for newest first
         saveChatHistory()
+    }
+    
+    func saveChatSessionFromMessages(title: String, messages: [ChatMessage]) {
+        guard !messages.isEmpty else { return }
+        
+        let session = ChatSession(
+            title: title,
+            messages: messages,
+            createdDate: Date(),
+            lastModified: Date()
+        )
+        
+        chatSessions.insert(session, at: 0)
+        saveChatHistory()
+    }
+    
+    func addMessage(_ message: ChatMessage) {
+        currentMessages.append(message)
+    }
+    
+    func clearCurrentMessages() {
+        currentMessages.removeAll()
     }
     
     func updateCurrentChat(content: String) {

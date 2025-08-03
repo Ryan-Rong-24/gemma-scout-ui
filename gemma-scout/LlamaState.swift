@@ -5,6 +5,7 @@ import UIKit
 class LlamaState: ObservableObject {
     @Published var messages = ""
     @Published var selectedImages: [UIImage] = []
+    @Published var chatMessages: [ChatMessage] = []
     private var llamaContext: LlamaContext?
     private var temporaryImagePaths: [String] = []
 
@@ -23,25 +24,69 @@ class LlamaState: ObservableObject {
             return
         }
 
-        // Prepare images if any are selected
-        if !selectedImages.isEmpty {
+        // Convert selected images to Data for storage
+        let imageDataArray = selectedImages.compactMap { $0.jpegData(compressionQuality: 0.8) }
+        
+        // Add user message with images to chat history
+        let userMessage = ChatMessage(
+            content: text,
+            isUser: true,
+            timestamp: Date(),
+            imageData: imageDataArray.isEmpty ? nil : imageDataArray
+        )
+        chatMessages.append(userMessage)
+
+        // Prepare images if any are selected and clear them from UI immediately
+        let hasImages = !selectedImages.isEmpty
+        if hasImages {
             await prepareImagesForCompletion()
+            // Clear images from UI immediately after processing
+            selectedImages.removeAll()
             await llamaContext.completion_init_with_images(text: text)
         } else {
             await llamaContext.completion_init(text: text)
         }
+        
+        // Start building AI response
+        var aiResponse = ""
+        
+        // Create a placeholder AI message that we'll update in real-time
+        let placeholderAiMessage = ChatMessage(
+            content: "",
+            isUser: false,
+            timestamp: Date()
+        )
+        chatMessages.append(placeholderAiMessage)
+        let aiMessageIndex = chatMessages.count - 1
         
         Task.detached {
             while await !llamaContext.is_done {
                 let result = await llamaContext.completion_loop()
                 await MainActor.run {
                     self.messages += "\(result)"
+                    aiResponse += result
+                    
+                    // Update the AI message in real-time
+                    let updatedAiMessage = ChatMessage(
+                        content: aiResponse,
+                        isUser: false,
+                        timestamp: self.chatMessages[aiMessageIndex].timestamp
+                    )
+                    self.chatMessages[aiMessageIndex] = updatedAiMessage
                 }
             }
             await MainActor.run {
                 self.messages += "\n"
-                // Clear images after completion
-                self.clearSelectedImages()
+                
+                // Final update to AI message
+                let finalAiMessage = ChatMessage(
+                    content: aiResponse.trimmingCharacters(in: .whitespacesAndNewlines),
+                    isUser: false,
+                    timestamp: self.chatMessages[aiMessageIndex].timestamp
+                )
+                self.chatMessages[aiMessageIndex] = finalAiMessage
+                
+                // Images were already cleared at the start of completion
             }
             await llamaContext.clear()
         }
@@ -53,6 +98,7 @@ class LlamaState: ObservableObject {
         }
         await llamaContext.clear()
         messages = ""
+        chatMessages.removeAll()
         clearSelectedImages()
     }
     

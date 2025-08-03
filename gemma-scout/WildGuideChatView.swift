@@ -110,13 +110,20 @@ struct WildGuideChatView: View {
                     // Add some top padding
                     Color.clear.frame(height: 8)
                     
-                    // Display selected images
+                    // Display chat messages with images inline
+                    if !llamaState.chatMessages.isEmpty {
+                        ForEach(llamaState.chatMessages) { message in
+                            messageView(for: message)
+                        }
+                    }
+                    
+                    // Display selected images for current input
                     if !llamaState.selectedImages.isEmpty {
                         selectedImagesView
                     }
                     
-                    // Display the actual chat messages from llamaState
-                    if !llamaState.messages.isEmpty {
+                    // Display the legacy text messages if no chat messages exist
+                    if llamaState.chatMessages.isEmpty && !llamaState.messages.isEmpty {
                         Text(.init(llamaState.messages))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
@@ -125,7 +132,7 @@ struct WildGuideChatView: View {
                     }
                     
                     // Quick prompts (show when no messages yet)
-                    if llamaState.messages.isEmpty {
+                    if llamaState.chatMessages.isEmpty && llamaState.messages.isEmpty {
                         quickPromptsView
                     }
                     
@@ -138,6 +145,13 @@ struct WildGuideChatView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
+            .onChange(of: llamaState.chatMessages) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                }
+            }
             .onChange(of: llamaState.messages) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -151,6 +165,69 @@ struct WildGuideChatView: View {
                 }
             }
         }
+    }
+    
+    private func messageView(for message: ChatMessage) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                // Message header
+                HStack {
+                    Circle()
+                        .fill(message.isUser ? Color.blue : Color.green)
+                        .frame(width: 20, height: 20)
+                        .overlay(
+                            Image(systemName: message.isUser ? "person.fill" : "compass")
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                        )
+                    
+                    Text(message.isUser ? "You" : "Gemma Scout")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text(message.timestamp.formatted(date: .omitted, time: .shortened))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                
+                Spacer()
+            }
+            
+            // Images if any
+            if let imageData = message.imageData, !imageData.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(imageData.enumerated()), id: \.offset) { index, data in
+                            if let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .frame(height: 130)
+            }
+            
+            // Message text
+            Text(message.content)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+                .textSelection(.enabled)
+                .font(.body)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(Color(.systemGray6).opacity(0.3))
+        .cornerRadius(12)
+        .padding(.horizontal, 8)
     }
     
     private var quickPromptsView: some View {
@@ -269,7 +346,11 @@ struct WildGuideChatView: View {
     
     private func saveCurrentChatAndStartNew() {
         // Save current chat if it has content
-        if !llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if !llamaState.chatMessages.isEmpty {
+            let title = generateChatTitle(from: llamaState.chatMessages)
+            historyManager.saveChatSessionFromMessages(title: title, messages: llamaState.chatMessages)
+        } else if !llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // Fallback to legacy messages if new structure is empty
             let title = generateChatTitle(from: llamaState.messages)
             historyManager.saveChatSession(title: title, content: llamaState.messages)
         }
@@ -295,10 +376,25 @@ struct WildGuideChatView: View {
         return "Wilderness Chat"
     }
     
+    private func generateChatTitle(from messages: [ChatMessage]) -> String {
+        if let firstUserMessage = messages.first(where: { $0.isUser }) {
+            let cleaned = firstUserMessage.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return cleaned.count > 30 ? String(cleaned.prefix(27)) + "..." : cleaned
+        }
+        return "Wilderness Chat"
+    }
+    
     func loadChat(_ session: ChatSession) {
         Task {
             await llamaState.clear()
-            llamaState.messages = session.content
+            
+            // Load messages from new structure if available, otherwise use legacy content
+            if !session.messages.isEmpty {
+                llamaState.chatMessages = session.messages
+            } else {
+                llamaState.messages = session.content
+            }
+            
             showingInitialPrompts = false
             historyManager.loadChat(session)
         }
