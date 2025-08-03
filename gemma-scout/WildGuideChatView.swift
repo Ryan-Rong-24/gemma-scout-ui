@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 struct WildGuideChatView: View {
     @StateObject private var llamaState = LlamaState()
@@ -6,6 +7,8 @@ struct WildGuideChatView: View {
     @State private var inputText = ""
     @State private var showingInitialPrompts = true
     @State private var showingNewChatAlert = false
+    @State private var showingImagePicker = false
+    @State private var showingImageActionSheet = false
     
     let quickPrompts = [
         "How to build a fire?",
@@ -28,6 +31,20 @@ struct WildGuideChatView: View {
             }
         }
         .navigationBarHidden(true)
+        .confirmationDialog("Add Image", isPresented: $showingImageActionSheet) {
+            Button("Camera") {
+                // TODO: Implement camera
+            }
+            Button("Photo Library") {
+                showingImagePicker = true
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker { image in
+                llamaState.addImage(image)
+            }
+        }
     }
     
     private var headerView: some View {
@@ -92,6 +109,11 @@ struct WildGuideChatView: View {
                 LazyVStack(spacing: 16) {
                     // Add some top padding
                     Color.clear.frame(height: 8)
+                    
+                    // Display selected images
+                    if !llamaState.selectedImages.isEmpty {
+                        selectedImagesView
+                    }
                     
                     // Display the actual chat messages from llamaState
                     if !llamaState.messages.isEmpty {
@@ -182,6 +204,15 @@ struct WildGuideChatView: View {
                 
                 // Buttons
                 VStack(spacing: 8) {
+                    // Image picker button
+                    Button(action: {
+                        showingImageActionSheet = true
+                    }) {
+                        Image(systemName: "photo.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.green)
+                    }
+                    
                     // Send button
                     Button(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
@@ -270,6 +301,71 @@ struct WildGuideChatView: View {
             llamaState.messages = session.content
             showingInitialPrompts = false
             historyManager.loadChat(session)
+        }
+    }
+    
+    private var selectedImagesView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(Array(llamaState.selectedImages.enumerated()), id: \.offset) { index, image in
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        
+                        Button(action: {
+                            llamaState.removeImage(at: index)
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .background(Color.black.opacity(0.6))
+                                .clipShape(Circle())
+                        }
+                        .offset(x: 5, y: -5)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+        .frame(height: 90)
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    let onImageSelected: (UIImage) -> Void
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onImageSelected: onImageSelected)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let onImageSelected: (UIImage) -> Void
+        
+        init(onImageSelected: @escaping (UIImage) -> Void) {
+            self.onImageSelected = onImageSelected
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                onImageSelected(image)
+            }
+            picker.dismiss(animated: true)
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
         }
     }
 }

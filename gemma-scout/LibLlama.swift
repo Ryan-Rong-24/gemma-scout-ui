@@ -3,6 +3,9 @@ import llama
 
 enum LlamaError: Error {
     case couldNotInitializeContext
+    case couldNotInitializeMultimodalContext
+    case couldNotLoadImage
+    case tokenizationFailed
 }
 
 func llama_batch_clear(_ batch: inout llama_batch) {
@@ -30,6 +33,10 @@ actor LlamaContext {
     private var tokens_list: [llama_token]
     var is_done: Bool = false
 
+    // Multimodal support
+    private var mtmd_context: OpaquePointer?
+    private var current_images: [String] = [] // Store image paths for current conversation
+
     /// This variable is used to store temporarily invalid cchars
     private var temporary_invalid_cchars: [CChar]
 
@@ -38,9 +45,10 @@ actor LlamaContext {
 
     var n_decode: Int32 = 0
 
-    init(model: OpaquePointer, context: OpaquePointer) {
+    init(model: OpaquePointer, context: OpaquePointer, mtmd_context: OpaquePointer? = nil) {
         self.model = model
         self.context = context
+        self.mtmd_context = mtmd_context
         self.tokens_list = []
         self.batch = llama_batch_init(512, 0, 1)
         self.temporary_invalid_cchars = []
@@ -54,12 +62,15 @@ actor LlamaContext {
     deinit {
         llama_sampler_free(sampling)
         llama_batch_free(batch)
+        if let mtmd_ctx = mtmd_context {
+            mtmd_free(mtmd_ctx)
+        }
         llama_model_free(model)
         llama_free(context)
         llama_backend_free()
     }
 
-    static func create_context(path: String) throws -> LlamaContext {
+    static func create_context(path: String, mmproj_path: String? = nil) throws -> LlamaContext {
         llama_backend_init()
         var model_params = llama_model_default_params()
 
@@ -87,7 +98,49 @@ actor LlamaContext {
             throw LlamaError.couldNotInitializeContext
         }
 
-        return LlamaContext(model: model, context: context)
+            // Initialize multimodal context if mmproj_path is provided
+        var mtmd_ctx: OpaquePointer? = nil
+        if let mmproj_path = mmproj_path {
+            // Check if the multimodal projection file exists
+            guard FileManager.default.fileExists(atPath: mmproj_path) else {
+                print("Warning: Multimodal projection file not found at \(mmproj_path)")
+                print("Continuing with text-only mode")
+                return LlamaContext(model: model, context: context, mtmd_context: nil)
+            }
+            
+            var mtmd_params = mtmd_context_params_default()
+#if targetEnvironment(simulator)
+            mtmd_params.use_gpu = false
+            print("Running on simulator, disabling GPU for multimodal")
+#else
+            mtmd_params.use_gpu = true
+#endif
+            mtmd_params.n_threads = Int32(n_threads)
+            mtmd_params.verbosity = GGML_LOG_LEVEL_INFO
+            
+            print("Attempting to initialize multimodal context with:")
+            print("  - mmproj_path: \(mmproj_path)")
+            print("  - use_gpu: \(mtmd_params.use_gpu)")
+            print("  - n_threads: \(mtmd_params.n_threads)")
+            
+            print("Calling mtmd_init_from_file...")
+            mtmd_ctx = mtmd_init_from_file(mmproj_path, model, mtmd_params)
+            print("mtmd_init_from_file completed")
+            
+            if mtmd_ctx == nil {
+                print("ERROR: Could not load multimodal projection model at \(mmproj_path)")
+                print("This could be due to:")
+                print("  - Model incompatibility")
+                print("  - Insufficient memory")
+                print("  - GPU/Metal issues on simulator")
+                print("Continuing with text-only mode")
+            } else {
+                print("SUCCESS: Multimodal support enabled with projection model: \(mmproj_path)")
+                print("Multimodal context pointer: \(String(describing: mtmd_ctx))")
+            }
+        }
+
+        return LlamaContext(model: model, context: context, mtmd_context: mtmd_ctx)
     }
 
     func model_info() -> String {
@@ -292,7 +345,121 @@ actor LlamaContext {
     func clear() {
         tokens_list.removeAll()
         temporary_invalid_cchars.removeAll()
+        current_images.removeAll()
         llama_memory_clear(llama_get_memory(context), true)
+    }
+    
+    // MARK: - Multimodal Support
+    
+    func has_multimodal_support() -> Bool {
+        return mtmd_context != nil
+    }
+    
+    func add_image(path: String) -> Bool {
+        guard has_multimodal_support() else {
+            print("Multimodal support not enabled")
+            return false
+        }
+        
+        current_images.append(path)
+        return true
+    }
+    
+    func completion_init_with_images(text: String) {
+        guard let mtmd_ctx = mtmd_context else {
+            print("No multimodal context, falling back to text-only completion")
+            completion_init(text: text)
+            return
+        }
+        
+        print("attempting multimodal completion with text: \"\(text)\" and \(current_images.count) images")
+        
+        // Prepare text with image markers
+        let marker = String(cString: mtmd_default_marker())
+        var prompt = text
+        
+        // Add image markers if not present and we have images
+        if !current_images.isEmpty && !prompt.contains(marker) {
+            for _ in current_images {
+                prompt = marker + " " + prompt
+            }
+        }
+        
+        // Create input text
+        var input_text = mtmd_input_text()
+        prompt.withCString { cString in
+            input_text.text = cString
+            input_text.add_special = true
+            input_text.parse_special = true
+        }
+        
+        // Create input chunks
+        let chunks = mtmd_input_chunks_init()
+        guard let chunks else {
+            print("Failed to create input chunks")
+            completion_init(text: text)
+            return
+        }
+        defer { mtmd_input_chunks_free(chunks) }
+        
+        // Load images as bitmaps
+        var bitmaps: [OpaquePointer?] = []
+        for imagePath in current_images {
+            imagePath.withCString { cPath in
+                if let bitmap = mtmd_helper_bitmap_init_from_file(mtmd_ctx, cPath) {
+                    bitmaps.append(bitmap)
+                } else {
+                    print("Failed to load image: \(imagePath)")
+                }
+            }
+        }
+        
+        // Create array of bitmap pointers
+        var bitmap_ptrs = bitmaps.map { $0 as Optional<OpaquePointer> }
+        
+        // Tokenize with multimodal support
+        let result = bitmap_ptrs.withUnsafeMutableBufferPointer { bufferPtr in
+            return mtmd_tokenize(mtmd_ctx, chunks, &input_text, bufferPtr.baseAddress, bitmaps.count)
+        }
+        
+        // Clean up bitmaps
+        for bitmap in bitmaps {
+            if let bitmap = bitmap {
+                mtmd_bitmap_free(bitmap)
+            }
+        }
+        
+        if result != 0 {
+            print("Multimodal tokenization failed with code \(result), falling back to text-only")
+            completion_init(text: text)
+            return
+        }
+        
+        // Evaluate chunks using helper
+        var new_n_past: llama_pos = 0
+        
+        let eval_result = mtmd_helper_eval_chunks(
+            mtmd_ctx,
+            context,
+            chunks,
+            0, // n_past
+            0, // seq_id  
+            512, // n_batch
+            true, // logits_last
+            &new_n_past
+        )
+        
+        if eval_result != 0 {
+            print("Failed to evaluate multimodal chunks with code \(eval_result)")
+            completion_init(text: text)
+            return
+        }
+        
+        n_cur = new_n_past
+        tokens_list.removeAll() // Clear since we're using chunks
+        temporary_invalid_cchars.removeAll()
+        
+        print("Multimodal completion initialized successfully")
     }
 
     private func tokenize(text: String, add_bos: Bool) -> [llama_token] {

@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AAB14EB42E3E89A500FC85BB /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; };
-		AAB14EB52E3E89A500FC85BB /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AAB14EDA2E3EF09700FC85BB /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; };
+		AAB14EDB2E3EF09700FC85BB /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAB14EB32E3E89A500FC85BB /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,13 +29,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		AAB14EB62E3E89A500FC85BB /* Embed Frameworks */ = {
+		AAB14EDC2E3EF09700FC85BB /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				AAB14EB52E3E89A500FC85BB /* llama.xcframework in Embed Frameworks */,
+				AAB14EDB2E3EF09700FC85BB /* llama.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -72,7 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAB14EB42E3E89A500FC85BB /* llama.xcframework in Frameworks */,
+				AAB14EDA2E3EF09700FC85BB /* llama.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,7 +132,7 @@
 				AAB14E842E3E895800FC85BB /* Sources */,
 				AAB14E852E3E895800FC85BB /* Frameworks */,
 				AAB14E862E3E895800FC85BB /* Resources */,
-				AAB14EB62E3E89A500FC85BB /* Embed Frameworks */,
+				AAB14EDC2E3EF09700FC85BB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
