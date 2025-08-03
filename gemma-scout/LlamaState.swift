@@ -135,6 +135,49 @@ class LlamaState: ObservableObject {
         return await llamaContext.has_multimodal_support()
     }
     
+    func restoreContextFromMessages(_ messages: [ChatMessage]) async {
+        guard let llamaContext else { return }
+        
+        // Skip if no messages to restore
+        guard !messages.isEmpty else { return }
+        
+        // Clear current context
+        await llamaContext.clear()
+        
+        // Rebuild conversation history in the format the model expects
+        var conversationHistory = ""
+        
+        for message in messages {
+            if message.isUser {
+                conversationHistory += "*\(message.content)*\n\n"
+            } else {
+                conversationHistory += "\(message.content)\n\n"
+            }
+        }
+        
+        // Initialize context with full conversation history
+        let trimmedHistory = conversationHistory.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedHistory.isEmpty {
+            print("Restoring context with \(messages.count) messages")
+            
+            // Initialize the context with the conversation history
+            await llamaContext.completion_init(text: trimmedHistory)
+            
+            // Let the model process the conversation history to build context
+            // but don't add the output to messages (this is just for context building)
+            var outputBuffer = ""
+            while await !llamaContext.is_done {
+                let result = await llamaContext.completion_loop()
+                outputBuffer += result
+            }
+            
+            print("Context restored, processed \(outputBuffer.count) characters")
+            
+            // Clear the completion state but keep the built context
+            await llamaContext.clear()
+        }
+    }
+    
     private func prepareImagesForCompletion() async {
         guard let llamaContext else { return }
         

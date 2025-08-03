@@ -118,6 +118,7 @@ class ChatHistoryManager: ObservableObject {
     @Published var chatSessions: [ChatSession] = []
     @Published var currentChatId: UUID?
     @Published var currentMessages: [ChatMessage] = []
+    @Published var sessionToLoad: ChatSession?
     
     private let userDefaults = UserDefaults.standard
     private let chatHistoryKey = "ChatHistoryKey"
@@ -180,6 +181,22 @@ class ChatHistoryManager: ObservableObject {
         saveChatHistory()
     }
     
+    func updateCurrentChatWithMessages(_ messages: [ChatMessage]) {
+        guard let currentId = currentChatId,
+              let index = chatSessions.firstIndex(where: { $0.id == currentId }) else { return }
+        
+        let updatedSession = chatSessions[index]
+        let newSession = ChatSession(
+            title: updatedSession.title,
+            messages: messages,
+            createdDate: updatedSession.createdDate,
+            lastModified: Date()
+        )
+        
+        chatSessions[index] = newSession
+        saveChatHistory()
+    }
+    
     func deleteChat(_ session: ChatSession) {
         chatSessions.removeAll { $0.id == session.id }
         if currentChatId == session.id {
@@ -194,6 +211,14 @@ class ChatHistoryManager: ObservableObject {
     
     func loadChat(_ session: ChatSession) {
         currentChatId = session.id
+    }
+    
+    func requestLoadChat(_ session: ChatSession) {
+        sessionToLoad = session
+    }
+    
+    func clearLoadRequest() {
+        sessionToLoad = nil
     }
     
     private func saveChatHistory() {

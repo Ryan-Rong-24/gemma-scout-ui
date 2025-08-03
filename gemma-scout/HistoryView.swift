@@ -99,10 +99,13 @@ struct HistoryView: View {
     }
     
     private func loadChat(_ session: ChatSession) {
-        // This will be handled by the parent view or through a notification
+        // Request loading the chat through the shared manager
+        historyManager.requestLoadChat(session)
+        
+        // Also post notification to switch to chat tab
         NotificationCenter.default.post(
-            name: NSNotification.Name("LoadChatSession"), 
-            object: session
+            name: NSNotification.Name("SwitchToChatTab"), 
+            object: nil
         )
     }
     

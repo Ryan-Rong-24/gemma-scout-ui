@@ -35,11 +35,8 @@ struct ContentView: View {
                 .tag(3)
         }
         .accentColor(.primary)
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LoadChatSession"))) { notification in
-            if let session = notification.object as? ChatSession {
-                chatView.loadChat(session)
-                selectedTab = 0 // Switch to chat tab
-            }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToChatTab"))) { _ in
+            selectedTab = 0 // Switch to chat tab
         }
     }
 }

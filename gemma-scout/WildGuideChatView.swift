@@ -32,6 +32,12 @@ struct WildGuideChatView: View {
             }
         }
         .navigationBarHidden(true)
+        .onReceive(historyManager.$sessionToLoad) { session in
+            if let session = session {
+                loadChat(session)
+                historyManager.clearLoadRequest()
+            }
+        }
         .confirmationDialog("Add Image", isPresented: $showingImageActionSheet) {
             Button("Camera") {
                 showingCameraPicker = true
@@ -348,6 +354,11 @@ struct WildGuideChatView: View {
         
         Task {
             await llamaState.complete(text: userInput)
+            
+            // Update the current chat session if we're in an existing conversation
+            if let currentChatId = historyManager.currentChatId {
+                historyManager.updateCurrentChatWithMessages(llamaState.chatMessages)
+            }
         }
     }
     
@@ -400,17 +411,34 @@ struct WildGuideChatView: View {
     
     func loadChat(_ session: ChatSession) {
         Task {
+            // Set loading state
+            llamaState.isProcessing = true
+            
+            // Load the model first
+            do {
+                try llamaState.loadModel()
+            } catch {
+                print("Error loading model: \(error)")
+                llamaState.isProcessing = false
+                return
+            }
+            
             await llamaState.clear()
             
             // Load messages from new structure if available, otherwise use legacy content
             if !session.messages.isEmpty {
                 llamaState.chatMessages = session.messages
+                // Restore context for continuation
+                await llamaState.restoreContextFromMessages(session.messages)
             } else {
                 llamaState.messages = session.content
             }
             
             showingInitialPrompts = false
             historyManager.loadChat(session)
+            
+            // Clear loading state
+            llamaState.isProcessing = false
         }
     }
     
