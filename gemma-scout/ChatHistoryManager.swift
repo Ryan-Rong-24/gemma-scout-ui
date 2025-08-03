@@ -32,18 +32,26 @@ struct ChatSession: Codable, Identifiable {
 
 @MainActor
 class ChatHistoryManager: ObservableObject {
+    static let shared = ChatHistoryManager()
+    
     @Published var chatSessions: [ChatSession] = []
     @Published var currentChatId: UUID?
     
     private let userDefaults = UserDefaults.standard
     private let chatHistoryKey = "ChatHistoryKey"
     
-    init() {
+    private init() {
         loadChatHistory()
     }
     
     func saveChatSession(title: String, content: String) {
-        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        print("DEBUG: saveChatSession called with title: '\(title)'")
+        print("DEBUG: Content length: \(content.count)")
+        
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { 
+            print("DEBUG: Content is empty, not saving")
+            return 
+        }
         
         let session = ChatSession(
             title: title,
@@ -53,6 +61,7 @@ class ChatHistoryManager: ObservableObject {
         )
         
         chatSessions.insert(session, at: 0) // Add to beginning for newest first
+        print("DEBUG: Added session, total count: \(chatSessions.count)")
         saveChatHistory()
     }
     

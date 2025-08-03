@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WildGuideChatView: View {
     @StateObject private var llamaState = LlamaState()
-    @StateObject private var historyManager = ChatHistoryManager()
+    @ObservedObject private var historyManager = ChatHistoryManager.shared
     @State private var inputText = ""
     @State private var showingInitialPrompts = true
     @State private var showingNewChatAlert = false
@@ -237,10 +237,18 @@ struct WildGuideChatView: View {
     }
     
     private func saveCurrentChatAndStartNew() {
+        // Debug: Print current messages
+        print("DEBUG: Current messages content: '\(llamaState.messages)'")
+        print("DEBUG: Messages isEmpty: \(llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)")
+        
         // Save current chat if it has content
         if !llamaState.messages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             let title = generateChatTitle(from: llamaState.messages)
+            print("DEBUG: Saving chat with title: '\(title)'")
             historyManager.saveChatSession(title: title, content: llamaState.messages)
+            print("DEBUG: Chat sessions count after save: \(historyManager.chatSessions.count)")
+        } else {
+            print("DEBUG: No content to save - messages are empty")
         }
         
         // Start new chat

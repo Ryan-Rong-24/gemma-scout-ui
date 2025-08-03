@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @StateObject private var historyManager = ChatHistoryManager()
+    @ObservedObject private var historyManager = ChatHistoryManager.shared
     @State private var selectedChatToDelete: ChatSession?
     @State private var showingDeleteAlert = false
     
