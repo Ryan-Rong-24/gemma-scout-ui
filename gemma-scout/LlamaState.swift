@@ -6,6 +6,7 @@ class LlamaState: ObservableObject {
     @Published var messages = ""
     @Published var selectedImages: [UIImage] = []
     @Published var chatMessages: [ChatMessage] = []
+    @Published var isProcessing = false
     private var llamaContext: LlamaContext?
     private var temporaryImagePaths: [String] = []
 
@@ -23,6 +24,9 @@ class LlamaState: ObservableObject {
         guard let llamaContext else {
             return
         }
+
+        // Set processing state to true
+        isProcessing = true
 
         // Convert selected images to Data for storage
         let imageDataArray = selectedImages.compactMap { $0.jpegData(compressionQuality: 0.8) }
@@ -86,6 +90,9 @@ class LlamaState: ObservableObject {
                 )
                 self.chatMessages[aiMessageIndex] = finalAiMessage
                 
+                // Set processing state to false when complete
+                self.isProcessing = false
+                
                 // Images were already cleared at the start of completion
             }
             await llamaContext.clear()
@@ -99,6 +106,7 @@ class LlamaState: ObservableObject {
         await llamaContext.clear()
         messages = ""
         chatMessages.removeAll()
+        isProcessing = false
         clearSelectedImages()
     }
     

@@ -9,6 +9,7 @@ struct WildGuideChatView: View {
     @State private var showingNewChatAlert = false
     @State private var showingImagePicker = false
     @State private var showingImageActionSheet = false
+    @State private var showingCameraPicker = false
     
     let quickPrompts = [
         "How to build a fire?",
@@ -33,7 +34,7 @@ struct WildGuideChatView: View {
         .navigationBarHidden(true)
         .confirmationDialog("Add Image", isPresented: $showingImageActionSheet) {
             Button("Camera") {
-                // TODO: Implement camera
+                showingCameraPicker = true
             }
             Button("Photo Library") {
                 showingImagePicker = true
@@ -42,6 +43,11 @@ struct WildGuideChatView: View {
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker { image in
+                llamaState.addImage(image)
+            }
+        }
+        .sheet(isPresented: $showingCameraPicker) {
+            CameraPicker { image in
                 llamaState.addImage(image)
             }
         }
@@ -218,7 +224,7 @@ struct WildGuideChatView: View {
             }
             
             // Message text
-            Text(message.content)
+            Text(.init(message.content))
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
                 .textSelection(.enabled)
@@ -287,24 +293,31 @@ struct WildGuideChatView: View {
                     }) {
                         Image(systemName: "photo.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.green)
+                            .foregroundColor(llamaState.isProcessing ? .gray : .green)
                     }
+                    .disabled(llamaState.isProcessing)
                     
-                    // Send button
+                    // Send button or loading indicator
                     Button(action: sendMessage) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(inputText.isEmpty ? .gray : .blue)
+                        if llamaState.isProcessing {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                .scaleEffect(0.8)
+                        } else {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(inputText.isEmpty ? .gray : .blue)
+                        }
                     }
-                    .disabled(inputText.isEmpty)
+                    .disabled(inputText.isEmpty || llamaState.isProcessing)
                     
                     // Clear chat button
                     Button(action: clearMessages) {
                         Image(systemName: "trash.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.red)
+                            .foregroundColor(llamaState.isProcessing ? .gray : .red)
                     }
-                    .disabled(llamaState.messages.isEmpty)
+                    .disabled(llamaState.messages.isEmpty || llamaState.isProcessing)
                 }
             }
             .padding()
@@ -329,6 +342,7 @@ struct WildGuideChatView: View {
             try llamaState.loadModel()
         } catch {
             llamaState.messages += "Error loading model!\n"
+            llamaState.isProcessing = false
             return
         }
         
@@ -437,6 +451,43 @@ struct ImagePicker: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onImageSelected: onImageSelected)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let onImageSelected: (UIImage) -> Void
+        
+        init(onImageSelected: @escaping (UIImage) -> Void) {
+            self.onImageSelected = onImageSelected
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                onImageSelected(image)
+            }
+            picker.dismiss(animated: true)
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
+    }
+}
+
+struct CameraPicker: UIViewControllerRepresentable {
+    let onImageSelected: (UIImage) -> Void
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .camera
+        picker.allowsEditing = false
         return picker
     }
     
