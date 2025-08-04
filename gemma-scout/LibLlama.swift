@@ -70,7 +70,7 @@ actor LlamaContext {
         llama_backend_free()
     }
 
-    static func create_context(path: String, mmproj_path: String? = nil) throws -> LlamaContext {
+    static func create_context(path: String, mmproj_path: String? = nil, enable_multimodal: Bool = false) throws -> LlamaContext {
         llama_backend_init()
         var model_params = llama_model_default_params()
 
@@ -98,9 +98,9 @@ actor LlamaContext {
             throw LlamaError.couldNotInitializeContext
         }
 
-            // Initialize multimodal context if mmproj_path is provided
+            // Initialize multimodal context if mmproj_path is provided and multimodal is enabled
         var mtmd_ctx: OpaquePointer? = nil
-        if let mmproj_path = mmproj_path {
+        if enable_multimodal, let mmproj_path = mmproj_path {
             // Check if the multimodal projection file exists
             guard FileManager.default.fileExists(atPath: mmproj_path) else {
                 print("Warning: Multimodal projection file not found at \(mmproj_path)")
@@ -141,6 +141,46 @@ actor LlamaContext {
         }
 
         return LlamaContext(model: model, context: context, mtmd_context: mtmd_ctx)
+    }
+    
+    func enable_multimodal_support(mmproj_path: String) -> Bool {
+        // Don't reinitialize if already have multimodal support
+        if mtmd_context != nil {
+            return true
+        }
+        
+        // Check if the multimodal projection file exists
+        guard FileManager.default.fileExists(atPath: mmproj_path) else {
+            print("Warning: Multimodal projection file not found at \(mmproj_path)")
+            return false
+        }
+        
+        let n_threads = max(1, min(8, ProcessInfo.processInfo.processorCount - 2))
+        var mtmd_params = mtmd_context_params_default()
+#if targetEnvironment(simulator)
+        mtmd_params.use_gpu = false
+        print("Running on simulator, disabling GPU for multimodal")
+#else
+        mtmd_params.use_gpu = true
+#endif
+        mtmd_params.n_threads = Int32(n_threads)
+        mtmd_params.verbosity = GGML_LOG_LEVEL_INFO
+        
+        print("Dynamically loading multimodal context with:")
+        print("  - mmproj_path: \(mmproj_path)")
+        print("  - use_gpu: \(mtmd_params.use_gpu)")
+        print("  - n_threads: \(mtmd_params.n_threads)")
+        
+        let mtmd_ctx = mtmd_init_from_file(mmproj_path, model, mtmd_params)
+        
+        if mtmd_ctx == nil {
+            print("ERROR: Could not dynamically load multimodal projection model at \(mmproj_path)")
+            return false
+        } else {
+            print("SUCCESS: Dynamically loaded multimodal support with projection model: \(mmproj_path)")
+            mtmd_context = mtmd_ctx
+            return true
+        }
     }
 
     func model_info() -> String {

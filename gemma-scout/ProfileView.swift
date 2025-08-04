@@ -80,7 +80,7 @@ struct ProfileView: View {
         VStack(spacing: 16) {
             HStack(spacing: 16) {
                 // Profile picture
-                Image("headshot")
+                Image("Images")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 64, height: 64)
@@ -174,9 +174,9 @@ struct ProfileView: View {
             
             VStack(spacing: 12) {
                 InfoRow(label: "App Version", value: "1.0.0")
-                InfoRow(label: "AI Model", value: "Gemma 3 4B")
+                InfoRow(label: "AI Model", value: "Gemma 3N E2B")
                 InfoRow(label: "Total Conversations", value: "\(historyManager.chatSessions.count)")
-                InfoRow(label: "Storage Used", value: "2.8 GB")
+                InfoRow(label: "Storage Used", value: "3.8 GB")
             }
             .padding()
             .background(Color(.systemGray6))

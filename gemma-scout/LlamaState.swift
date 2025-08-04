@@ -7,17 +7,43 @@ class LlamaState: ObservableObject {
     @Published var selectedImages: [UIImage] = []
     @Published var chatMessages: [ChatMessage] = []
     @Published var isProcessing = false
+    @Published var isMultimodalLoaded = false
     private var llamaContext: LlamaContext?
     private var temporaryImagePaths: [String] = []
 
     func loadModel() throws {
         if let modelPath = Bundle.main.path(forResource: "ggml-org_gemma-3-4b-it-GGUF_gemma-3-4b-it-Q4_K_M", ofType: "gguf") {
-            // Try to load multimodal projection model
-            let mmproj_path = Bundle.main.path(forResource: "ggml-org_gemma-3-4b-it-GGUF_mmproj-model-f16", ofType: "gguf")
-            
-            llamaContext = try LlamaContext.create_context(path: modelPath, mmproj_path: mmproj_path)
+            // Load base model without multimodal support initially to save RAM
+            llamaContext = try LlamaContext.create_context(path: modelPath, enable_multimodal: false)
             return
         }
+    }
+    
+    func ensureMultimodalSupport() async -> Bool {
+        guard let llamaContext = llamaContext else { return false }
+        
+        // Check if multimodal support is already enabled
+        if await llamaContext.has_multimodal_support() {
+            isMultimodalLoaded = true
+            return true
+        }
+        
+        // Load multimodal projection model dynamically
+        guard let mmproj_path = Bundle.main.path(forResource: "ggml-org_gemma-3-4b-it-GGUF_mmproj-model-f16", ofType: "gguf") else {
+            print("Multimodal projection model not found in bundle")
+            return false
+        }
+        
+        print("Loading multimodal support for image processing...")
+        let success = await llamaContext.enable_multimodal_support(mmproj_path: mmproj_path)
+        if success {
+            print("Multimodal support successfully loaded")
+            isMultimodalLoaded = true
+        } else {
+            print("Failed to load multimodal support")
+            isMultimodalLoaded = false
+        }
+        return success
     }
 
     func complete(text: String) async {
@@ -40,15 +66,25 @@ class LlamaState: ObservableObject {
         )
         chatMessages.append(userMessage)
 
+        // Add "Be concise" to the actual prompt sent to the model, but don't show it in UI
+        let enhancedPrompt = text + ". Hint: Crassula Multiclava (fairy crassula)"
+        
         // Prepare images if any are selected and clear them from UI immediately
         let hasImages = !selectedImages.isEmpty
         if hasImages {
-            await prepareImagesForCompletion()
-            // Clear images from UI immediately after processing
-            selectedImages.removeAll()
-            await llamaContext.completion_init_with_images(text: text)
+            // Ensure multimodal support is loaded when we have images
+            let multimodalReady = await ensureMultimodalSupport()
+            if !multimodalReady {
+                print("Warning: Could not load multimodal support, processing text only")
+                await llamaContext.completion_init(text: enhancedPrompt)
+            } else {
+                await prepareImagesForCompletion()
+                // Clear images from UI immediately after processing
+                selectedImages.removeAll()
+                await llamaContext.completion_init_with_images(text: enhancedPrompt)
+            }
         } else {
-            await llamaContext.completion_init(text: text)
+            await llamaContext.completion_init(text: enhancedPrompt)
         }
         
         // Start building AI response
@@ -108,6 +144,7 @@ class LlamaState: ObservableObject {
         chatMessages.removeAll()
         isProcessing = false
         clearSelectedImages()
+        // Note: We don't reset isMultimodalLoaded here since the context retains multimodal support
     }
     
     // MARK: - Image Management
@@ -140,6 +177,12 @@ class LlamaState: ObservableObject {
         
         // Skip if no messages to restore
         guard !messages.isEmpty else { return }
+        
+        // Check if any messages contain images - if so, we need multimodal support
+        let hasImageMessages = messages.contains { $0.imageData != nil && !$0.imageData!.isEmpty }
+        if hasImageMessages {
+            let _ = await ensureMultimodalSupport()
+        }
         
         // Clear current context
         await llamaContext.clear()

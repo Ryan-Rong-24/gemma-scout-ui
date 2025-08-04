@@ -52,7 +52,7 @@ struct WildGuideChatView: View {
                 llamaState.addImage(image)
             }
         }
-        .sheet(isPresented: $showingCameraPicker) {
+        .fullScreenCover(isPresented: $showingCameraPicker) {
             CameraPicker { image in
                 llamaState.addImage(image)
             }
@@ -79,7 +79,7 @@ struct WildGuideChatView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                Text("Your survival companion")
+                Text("Your camping companion")
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.9))
             }
@@ -293,13 +293,22 @@ struct WildGuideChatView: View {
                 
                 // Buttons
                 VStack(spacing: 8) {
-                    // Image picker button
+                    // Image picker button with multimodal status
                     Button(action: {
                         showingImageActionSheet = true
                     }) {
-                        Image(systemName: "photo.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(llamaState.isProcessing ? .gray : .green)
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(llamaState.isProcessing ? .gray : .green)
+                            
+                            // Show indicator if multimodal support is loaded
+                            if llamaState.isMultimodalLoaded && !llamaState.selectedImages.isEmpty {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            }
+                        }
                     }
                     .disabled(llamaState.isProcessing)
                     
@@ -511,37 +520,72 @@ struct ImagePicker: UIViewControllerRepresentable {
 struct CameraPicker: UIViewControllerRepresentable {
     let onImageSelected: (UIImage) -> Void
     
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.sourceType = .camera
-        picker.allowsEditing = false
-        return picker
+    func makeUIViewController(context: Context) -> CameraViewController {
+        let controller = CameraViewController()
+        controller.onImageSelected = onImageSelected
+        return controller
     }
     
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
+}
+
+class CameraViewController: UIViewController {
+    var onImageSelected: ((UIImage) -> Void)?
+    private var imagePickerController: UIImagePickerController!
     
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onImageSelected: onImageSelected)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupImagePicker()
     }
     
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let onImageSelected: (UIImage) -> Void
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Set background to black to prevent white gaps
+        view.backgroundColor = .black
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    private func setupImagePicker() {
+        imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.sourceType = .camera
+        imagePickerController.allowsEditing = false
+        imagePickerController.cameraCaptureMode = .photo
+        imagePickerController.cameraFlashMode = .auto
+        imagePickerController.modalPresentationStyle = .fullScreen
         
-        init(onImageSelected: @escaping (UIImage) -> Void) {
-            self.onImageSelected = onImageSelected
-        }
+        // Remove navigation bar to get true full screen
+        imagePickerController.isNavigationBarHidden = true
         
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                onImageSelected(image)
-            }
-            picker.dismiss(animated: true)
-        }
+        addChild(imagePickerController)
+        view.addSubview(imagePickerController.view)
         
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
+        // Ensure camera view fills the entire screen including safe areas
+        imagePickerController.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imagePickerController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            imagePickerController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            imagePickerController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            imagePickerController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        imagePickerController.didMove(toParent: self)
+    }
+}
+
+extension CameraViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[.originalImage] as? UIImage {
+            onImageSelected?(image)
         }
+        dismiss(animated: true)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
     }
 }
 
