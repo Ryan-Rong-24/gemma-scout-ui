@@ -67,7 +67,7 @@ class LlamaState: ObservableObject {
         chatMessages.append(userMessage)
 
         // Add "Be concise" to the actual prompt sent to the model, but don't show it in UI
-        let enhancedPrompt = text + ". Hint: Crassula Multiclava (fairy crassula)"
+        let enhancedPrompt = text + ". Be concise."
         
         // Prepare images if any are selected and clear them from UI immediately
         let hasImages = !selectedImages.isEmpty
